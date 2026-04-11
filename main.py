@@ -1,11 +1,14 @@
 import subprocess, threading, json
 from colorama import Fore, Back, Style, init
+import asyncio
 
 
 class Messenger:
-    freinds_id: list
+    def __init__(self):
+        self.friends_id:list = []
 
-    def terminal(self, command: str) -> subprocess.Popen:
+    @staticmethod
+    def terminal(command: str) -> subprocess.Popen:
         return subprocess.Popen(command.split(sep=' '),
                          stdin=subprocess.PIPE,
                          stdout=subprocess.PIPE,
@@ -14,11 +17,22 @@ class Messenger:
 
 
     def listen(self, port: int):
-        return self.terminal(f'ncat -l {port}').communicate()
+        return self.proc(self.terminal(f'ncat -l {port}'))
 
 
     def connect(self, ip: str, port: int):
-        self.terminal(f'ncat {ip} {port}')
+        return self.proc(self.terminal(f'ncat -C {ip} {port}'))
+
+
+    def proc(self, process):
+        # Чтение вывода в реальном времени
+        for line in process.stdout:
+            print(line, end="")  # Бесперебойный вывод в текущий терминал
+
+
+        # Дополнительно: обработка ошибок
+        for line in process.stderr:
+            print(f"ERROR: {line}", end="")
 
 
     def check_lib(self):
@@ -31,7 +45,8 @@ class Messenger:
             data = []
             with open('friendsId.txt', 'r', encoding='utf-8') as file:
                 for el in file.read().split('\n'):
-                    data.append(el)
+                    if el!='':
+                        data.append(el)
             return data
         except:
             return []
@@ -80,39 +95,41 @@ def init_info():
     return out
 
 
-def cycle(is_on,messenger):
-    action = input('RO >>>')
-    if action == '0' or action == 'quit' or action == 'exit':
-        is_on = False
-    match action:
-        case '1':
-            action = action[2::]
-            messenger.terminal(action)
-        case '2':
-            action = action[2::]
-            messenger.listen(action)
-        case '3':
-            action = action[2::].split(sep=' ')
-            messenger.connect(action[0], action[1])
-        case '4':
-            messenger.check_lib()
-            print('Поздравляю, ты выиграл 100 тысяч долларов!')
-        case '5':
-            print('count your friends: ' + messenger.open_friends_id_txt_file().count())
-        case '6':
-            if action.count() <= 2:
-                messenger.write_to_file('friendsId.txt', messenger.friends_id)
-            else:
-                action = action[2::].split(sep=' ')
-                if action.count == 1:
-                    messenger.write_to_file(action, messenger.friends_id)
+def cycle(is_on:bool,messenger:Messenger):
+    while is_on:
+        action:str|int = input('RO >>> ')
+        if action == '0' or action == 'quit' or action == 'exit':
+            is_on = False
+        match action[0]:
+            case '1':
+                action:str = action[2::]
+                out, err= messenger.terminal(action).communicate()
+                print(out)
+            case '2':
+                action:int = int(action[2::])
+                messenger.listen(action)
+            case '3':
+                action:list = action[2::].split(sep=' ')
+                messenger.connect(action[0], action[1])
+            case '4':
+                messenger.check_lib()
+                print('Поздравляю, ты выиграл 100 тысяч долларов!')
+            case '5':
+                print('count your friends: ' + str(messenger.open_friends_id_txt_file().__len__()))
+            case '6':
+                if action.__len__() <= 2:
+                    print(messenger.write_to_file('friendsId.txt', messenger.friends_id))
                 else:
-                    print('неа, не туда целишься')
+                    action:list = action[2::].split(sep=' ')
+                    if action.__len__() == 1:
+                        print(messenger.write_to_file(action[0], messenger.friends_id))
+                    else:
+                        print('неа, не туда целишься')
 
 
 def start():
     proc = Messenger()
-    proc.freinds_id = proc.open_friends_id_txt_file()
+    proc.friends_id = proc.open_friends_id_txt_file()
     proc.check_lib()
 
     init(autoreset=True)
