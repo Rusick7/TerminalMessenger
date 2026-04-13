@@ -13,15 +13,15 @@ class Messenger:
                          stdin=subprocess.PIPE,
                          stdout=subprocess.PIPE,
                          stderr=subprocess.PIPE,
-                         text=True, shell=True)
+                         text=True)
 
 
     def listen(self, port: int):
-        return self.proc(self.terminal(f'ncat -l {port}'))
+        return self.proc(self.terminal(f'ncat --ssl -l {port}'))
 
 
     def connect(self, ip: str, port: int):
-        return self.proc(self.terminal(f'ncat -C {ip} {port}'))
+        return self.proc(self.terminal(f'ncat --ssl -C {ip} {port}'))
 
 
     def proc(self, process):
