@@ -1,71 +1,127 @@
-from kivy.config import Config
-window_size=(800,600)
-Config.set('graphics', 'resizable', 0)
-Config.set('graphics', 'width', window_size[0])
-Config.set('graphics', 'height', window_size[1])
 
-from kivy.core.window import Window
-from kivy.app import App
-from kivy.uix.codeinput import CodeInput
+from Config import *
+from Widgets import *
 from kivy.uix.floatlayout import FloatLayout
+from kivy.uix.widget import Widget
+from kivy.uix.anchorlayout import AnchorLayout
+from kivy.uix.image import Image
 from kivy.uix.label import Label
+from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.textinput import TextInput
 from kivy.uix.button import Button
+from kivy.core.window import Window
+from kivy.app import App
+
 
 class MyApp(App):
     def __init__(self):
         super().__init__()
-        self.CW = (.10,.13,.15,1)
-        self.CTI = self.CW #(.24,.24,.24,1)
+        # self.CW = (26/255,32/255,38/255,1)
+        self.CW = (20/255,20/255,20/255,1)
+        self.CTI = (.24,.24,.24,1)
         Window.clearcolor = self.CW
 
-    def btn_press(self, instance):
+    @staticmethod
+    def btn_press(instance):
         print("btn_press")
 
-    def build(self):
-        list_hor_widgets:list = [
-            Button(
-                text="Hello World!",
-                font_size=30,
-                on_press=self.btn_press,
-                background_color=(.13,.16,.18,1),
-                background_normal='',
-                size_hint=(1/3,.2),
-                pos=(0,0)
+    @staticmethod
+    def add_widget(layout: AnchorLayout|BoxLayout, widgets:list):
+        for el in widgets:
+            layout.add_widget(el)
+        return layout
+
+    # ---------------------------------- UP / TOP ---------------------------------
+
+    def upper(self):
+        # fl = FloatLayout()
+        # fl.add_widget(RectangleWidget(pos=(0,window_size[1]-30)))
+        # fl.add_widget(Label(text="User 2",font_size=16))
+
+        widgets: list = [
+            Image(
+                source='./img/user2.png',
+                size_hint_x=0.1,
             ),
-            Button(
-                text="Hello",
-                font_size=30,
-                on_press=self.btn_press,
-                size_hint=(1/3,.2),
-                pos=(window_size[0]/3,0)
+            Label(
+                text="User 2",
+                font_size=16
             ),
-            Button(
-                text="World!",
-                font_size=30,
-                on_press=self.btn_press,
-                size_hint=(1/3,.2),
-                pos=(window_size[0]/3*2,0)
+            Image(
+                source='./img/settings.png',
+                size_hint_x=0.1,
             )
         ]
 
-        flh = FloatLayout(size = (200, 200))
-        for hor in list_hor_widgets:
-            flh.add_widget(hor)
+        return self.add_widget(BoxLayout(size_hint=[1, .04]), widgets)
 
-        list_ver_widgets:list = [
-            CodeInput(font_size=12,
-                      size_hint=(1,.8),
-                      pos=(0,window_size[1]*.2),
-                      background_color=self.CTI,
-                      ),
-            flh
+    # ---------------------------------- CENTER ---------------------------------
+
+    # def center(self):
+    #     widgets: list = [
+    #         Widget()
+    #     ]
+    #
+    #     return self.add_widget(BoxLayout(), widgets)
+
+    # ---------------------------------- DOWN / BOTTOM ---------------------------------
+
+    def downer(self):
+        widgets: list = [
+            Button(
+                text="Hello World!",
+                font_size=12,
+                size_hint_x=0.1,
+                on_press=self.btn_press,
+                background_color=(.13, .16, .18, 1),
+                background_normal='',
+            ),
+            TextInput(
+                font_size=12,
+                background_color=self.CTI,
+            ),
+            Button(
+                text="World!",
+                font_size=12,
+                size_hint_x=0.1,
+                on_press=self.btn_press,
+            )
         ]
 
-        flv = FloatLayout(size = (200, 200))
-        for vert in list_ver_widgets:
-            flv.add_widget(vert)
-        return flv
+        return self.add_widget(BoxLayout(size_hint=[1, .06]), widgets)
+
+    # ---------------------------------- BODY ---------------------------------
+
+    def body(self, upper, downer):
+        widgets: list = [
+            upper,
+            Widget(), #center,
+            downer,
+        ]
+
+        return self.add_widget(BoxLayout(orientation='vertical'), widgets)
+
+    # =========================================================================
+
+    def front(self, body):
+        widgets: list = [
+            Image(
+                source='./img/icon.png',
+                allow_stretch=True,
+                keep_ratio=True,
+                size_hint=(1,1),
+            ),
+            body
+        ]
+
+        return self.add_widget(FloatLayout(), widgets)
+
+
+    def build(self):
+        return self.front(self.body(
+            upper=self.upper(),
+            downer=self.downer()
+        ))
 
     def on_start(self):
         pass
