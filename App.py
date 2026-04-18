@@ -26,7 +26,7 @@ class MyApp(App):
         print("btn_press")
 
     @staticmethod
-    def add_widget(layout: AnchorLayout|BoxLayout, widgets:list):
+    def add_widget(layout, widgets:list):
         for el in widgets:
             layout.add_widget(el)
         return layout
@@ -73,7 +73,7 @@ class MyApp(App):
                 font_size=12,
                 size_hint_x=0.1,
                 on_press=self.btn_press,
-                background_color=(.13, .16, .18, 1),
+                background_color=(.13, .16, .18, 0),
                 background_normal='',
             ),
             TextInput(
@@ -88,22 +88,40 @@ class MyApp(App):
             )
         ]
 
-        return self.add_widget(BoxLayout(size_hint=[1, .06]), widgets)
+        return self.add_widget(BoxLayout(), widgets)
 
     # ---------------------------------- BODY ---------------------------------
 
     def body(self, upper, downer):
+        al_widgets: list = [
+            # # RectangleWidget(
+            # #     bg_color=(.24, .24, .24, .5),
+            # #     pos=(5, 5),
+            # #     size=(window_size[0] - 10, window_size[1] * .05 - 10),
+            # # ),
+            # LineWidget(
+            #     bg_color=(.24, .24, .24, .5),
+            #     points=[5, 5, window_size[0] - 10, window_size[1] * .05 - 10],
+            #     width=10,
+            #     # joint='miter',
+            #     # cap='square',
+            # ),
+            downer
+        ]
+        al = self.add_widget(AnchorLayout(size_hint=[1, .05], padding=5),al_widgets)
+
         widgets: list = [
             upper,
             Widget(), #center,
-            downer,
+            al,
         ]
-
         return self.add_widget(BoxLayout(orientation='vertical'), widgets)
 
     # =========================================================================
 
     def front(self, body):
+        al=AnchorLayout(anchor_x='center', anchor_y='bottom')
+        al.add_widget(body)
         widgets: list = [
             Image(
                 source='./img/icon.png',
@@ -111,7 +129,8 @@ class MyApp(App):
                 keep_ratio=True,
                 size_hint=(1,1),
             ),
-            body
+
+            al
         ]
 
         return self.add_widget(FloatLayout(), widgets)
