@@ -20,6 +20,7 @@ class MyApp(App):
         self.CW = (20/255,20/255,20/255,1)
         self.CTI = (.24,.24,.24,1)
         Window.clearcolor = self.CW
+        self.down_capsule = None
 
     @staticmethod
     def btn_press(instance):
@@ -90,22 +91,49 @@ class MyApp(App):
 
         return self.add_widget(BoxLayout(), widgets)
 
+    def capsule_downer(self):
+        widgets: list = [
+            Button(
+                text="Hello World!",
+                font_size=12,
+                size_hint_x=0.1,
+                on_press=self.btn_press,
+                background_color=(.13, .16, .18, 0),
+                background_normal='',
+            ),
+            TextInput(
+                font_size=12,
+                background_color=self.CTI,
+            ),
+            Button(
+                text="World!",
+                font_size=12,
+                size_hint_x=0.1,
+                on_press=self.btn_press,
+            )
+        ]
+
+        return self.add_widget(BoxLayout(), widgets)
+
     # ---------------------------------- BODY ---------------------------------
 
+    def capsule(self,bg_color,width,padding):
+        self.down_capsule = LineWidget(
+            bg_color=bg_color,
+            width=width,
+            padding=padding,
+            size_hint=(1, 1),
+        )
+        return self.down_capsule
+
+
     def body(self, upper, downer):
+        # capsule = self.capsule(bg_color=(1, 1, 1, 1), width=20, padding=10)
+        # capsule.add_widget(self.capsule_downer())
+        # al_widgets: list = [
+        #     capsule
+        # ]
         al_widgets: list = [
-            # # RectangleWidget(
-            # #     bg_color=(.24, .24, .24, .5),
-            # #     pos=(5, 5),
-            # #     size=(window_size[0] - 10, window_size[1] * .05 - 10),
-            # # ),
-            # LineWidget(
-            #     bg_color=(.24, .24, .24, .5),
-            #     points=[5, 5, window_size[0] - 10, window_size[1] * .05 - 10],
-            #     width=10,
-            #     # joint='miter',
-            #     # cap='square',
-            # ),
             downer
         ]
         al = self.add_widget(AnchorLayout(size_hint=[1, .05], padding=5),al_widgets)
@@ -137,10 +165,15 @@ class MyApp(App):
 
 
     def build(self):
-        return self.front(self.body(
+        front = self.front(self.body(
             upper=self.upper(),
             downer=self.downer()
         ))
+        return front
+
+
+    def on_resize(self,instance,value):
+        pass
 
     def on_start(self):
         pass
